@@ -1,0 +1,16 @@
+{
+  "name": "rp-paises-secretario",
+  "version": "4.0.0",
+  "description": "Secretário de Estado IA para RP de Países no Minecraft Bedrock",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "bedrock-protocol": "^3.33.0",
+    "groq-sdk": "^0.9.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

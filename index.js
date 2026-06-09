@@ -785,7 +785,7 @@ function sendChat(message) {
   if (!botClient) return;
   if (!message || typeof message !== "string") return;
   try {
-    botClient.queue("command_request", {
+    botClient.write("command_request", {
       command: `/say ${message}`,
       origin: { type: 5, uuid: "", request_id: "" },
       internal: true,
@@ -800,7 +800,7 @@ function runCommand(command) {
   if (!botClient) return;
   if (!command || typeof command !== "string") return;
   try {
-    botClient.queue("command_request", {
+    botClient.write("command_request", {
       command: `/${command}`,
       origin: { type: 5, uuid: "", request_id: "" },
       internal: true,

@@ -137,7 +137,8 @@ function connectBot() {
     console.log("📨 Pacote:", JSON.stringify(packet).slice(0, 300));
 
     const msg = packet.message || packet.parameters?.[0] || packet.text || "";
-    const sender = packet.source_name || packet.name || "";
+    // Limpar códigos de cor do nome (§r, §a, etc)
+    const sender = (packet.source_name || packet.name || "").replace(/§[0-9a-fk-or]/gi, "").trim();
 
     if (!msg) return;
     if (sender === "Secretario" || sender === "") return;
@@ -820,6 +821,3 @@ function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + m
 // ============================================================
 console.log("🌍 Iniciando Secretário de Estado v4.0 (Groq)...");
 connectBot();
-  
-
-    

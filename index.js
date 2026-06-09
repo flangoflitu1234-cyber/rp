@@ -108,17 +108,26 @@ function connectBot() {
 
   botClient.on("spawn", () => {
     console.log("✅ Secretário conectado ao servidor!");
-    sleep(3000).then(async () => {
-      runCommand("scoreboard objectives add inflacao dummy §6Inflação (%)");
-      runCommand("scoreboard objectives setdisplay sidebar inflacao");
-      runCommand("op Secretario");
-      sendChat("§6§l[SECRETÁRIO DE ESTADO]§r§f O Secretário está online!");
-      sendChat("§7Use §e-ação§7 para agir | §e/tell Secretario mensagem§7 para falar em privado");
-      await sleep(1000);
-      for (const [player, country] of Object.entries(db.countries)) {
-        runCommand(`scoreboard players set ${player} inflacao ${Math.round(country.inflacao)}`);
+    // Aguarda 8 segundos para o servidor estar pronto antes de enviar comandos
+    sleep(8000).then(async () => {
+      try {
+        runCommand("scoreboard objectives add inflacao dummy §6Inflação (%)");
+        await sleep(500);
+        runCommand("scoreboard objectives setdisplay sidebar inflacao");
+        await sleep(500);
+        sendChat("§6§l[SECRETÁRIO DE ESTADO]§r§f O Secretário está online!");
+        await sleep(500);
+        sendChat("§7Use §e-ação§7 para agir | §e/tell Secretario mensagem§7 para falar em privado");
+        await sleep(1000);
+        for (const [player, country] of Object.entries(db.countries)) {
+          await sleep(200);
+          runCommand(`scoreboard players set ${player} inflacao ${Math.round(country.inflacao)}`);
+        }
+        await sleep(500);
+        sendChat(`§7[Sistema] ${Object.keys(db.countries).length} países carregados da base de dados.`);
+      } catch (e) {
+        console.error("Erro no spawn:", e.message);
       }
-      sendChat(`§7[Sistema] ${Object.keys(db.countries).length} países carregados da base de dados.`);
     });
     startRandomEvents();
   });
@@ -148,14 +157,16 @@ function connectBot() {
   });
 
   botClient.on("kick", (reason) => {
-    console.log("❌ Bot kickado:", reason);
+    console.log("❌ Bot kickado:", JSON.stringify(reason));
     saveDB();
-    setTimeout(connectBot, 10000);
+    botClient = null;
+    setTimeout(connectBot, 30000);
   });
 
   botClient.on("error", (err) => {
     console.error("❌ Erro:", err.message);
-    setTimeout(connectBot, 10000);
+    botClient = null;
+    setTimeout(connectBot, 30000);
   });
 }
 
@@ -765,22 +776,32 @@ async function triggerRandomEvent() {
 // ============================================================
 function sendChat(message) {
   if (!botClient) return;
-  botClient.queue("command_request", {
-    command: `/say ${message}`,
-    origin: { type: 0, uuid: "", request_id: "" },
-    internal: false,
-    version: 52,
-  });
+  if (!message || typeof message !== "string") return;
+  try {
+    botClient.queue("command_request", {
+      command: `/say ${message}`,
+      origin: { type: 0, uuid: "", request_id: "" },
+      internal: false,
+      version: 52,
+    });
+  } catch (e) {
+    console.error("Erro sendChat:", e.message);
+  }
 }
 
 function runCommand(command) {
   if (!botClient) return;
-  botClient.queue("command_request", {
-    command: `/${command}`,
-    origin: { type: 0, uuid: "", request_id: "" },
-    internal: false,
-    version: 52,
-  });
+  if (!command || typeof command !== "string") return;
+  try {
+    botClient.queue("command_request", {
+      command: `/${command}`,
+      origin: { type: 0, uuid: "", request_id: "" },
+      internal: false,
+      version: 52,
+    });
+  } catch (e) {
+    console.error("Erro runCommand:", e.message);
+  }
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -793,3 +814,4 @@ function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + m
 // ============================================================
 console.log("🌍 Iniciando Secretário de Estado v4.0 (Groq)...");
 connectBot();
+

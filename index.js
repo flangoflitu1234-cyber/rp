@@ -785,11 +785,14 @@ function sendChat(message) {
   if (!botClient) return;
   if (!message || typeof message !== "string") return;
   try {
-    botClient.write("command_request", {
-      command: `/say ${message}`,
-      origin: { type: 5, uuid: "", request_id: "" },
-      internal: true,
-      version: 52,
+    botClient.write("text", {
+      type: "chat",
+      needs_translation: false,
+      source_name: "Secretario",
+      message: message,
+      parameters: [],
+      xuid: "",
+      platform_chat_id: "",
     });
   } catch (e) {
     console.error("Erro sendChat:", e.message);
@@ -801,9 +804,9 @@ function runCommand(command) {
   if (!command || typeof command !== "string") return;
   try {
     botClient.write("command_request", {
-      command: `/${command}`,
-      origin: { type: 5, uuid: "", request_id: "" },
-      internal: true,
+      command: command.startsWith("/") ? command : `/${command}`,
+      origin: { type: 0, uuid: "", request_id: "" },
+      internal: false,
       version: 52,
     });
   } catch (e) {

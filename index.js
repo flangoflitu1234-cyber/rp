@@ -133,17 +133,22 @@ function connectBot() {
   });
 
   botClient.on("text", async (packet) => {
-    const msg = packet.message || packet.parameters?.[0] || "";
-    const sender = packet.source_name || "";
+    // Debug completo do pacote
+    console.log("📨 Pacote:", JSON.stringify(packet).slice(0, 300));
+
+    const msg = packet.message || packet.parameters?.[0] || packet.text || "";
+    const sender = packet.source_name || packet.name || "";
+
+    if (!msg) return;
     if (sender === "Secretario" || sender === "") return;
 
+    console.log(`💬 [${sender}]: ${msg}`);
+
     // Mensagem privada /tell
-    if (msg.includes("§7[") && msg.includes("→ você]")) {
-      const match = msg.match(/\[(.+?) → você\] (.+)/);
+    if (msg.includes("→ você") || msg.includes("whispers to you")) {
+      const match = msg.match(/\[(.+?) → você\] (.+)/) || msg.match(/(.+?) whispers to you: (.+)/);
       if (match) {
-        const fromPlayer = match[1];
-        const privateMsg = match[2];
-        await handlePrivateMessage(fromPlayer, privateMsg);
+        await handlePrivateMessage(match[1], match[2]);
       }
       return;
     }
@@ -151,6 +156,7 @@ function connectBot() {
     // Ação pública com -
     if (msg.startsWith("-")) {
       const action = msg.slice(1).trim();
+      console.log(`⚡ Ação de ${sender}: ${action}`);
       await processPlayerAction(sender, action);
       return;
     }
@@ -814,5 +820,6 @@ function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + m
 // ============================================================
 console.log("🌍 Iniciando Secretário de Estado v4.0 (Groq)...");
 connectBot();
-                          r -= event.chance;
   
+
+    

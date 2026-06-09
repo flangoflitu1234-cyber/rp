@@ -787,8 +787,8 @@ function sendChat(message) {
   try {
     botClient.queue("command_request", {
       command: `/say ${message}`,
-      origin: { type: 0, uuid: "", request_id: "" },
-      internal: false,
+      origin: { type: 5, uuid: "", request_id: "" },
+      internal: true,
       version: 52,
     });
   } catch (e) {
@@ -802,8 +802,8 @@ function runCommand(command) {
   try {
     botClient.queue("command_request", {
       command: `/${command}`,
-      origin: { type: 0, uuid: "", request_id: "" },
-      internal: false,
+      origin: { type: 5, uuid: "", request_id: "" },
+      internal: true,
       version: 52,
     });
   } catch (e) {

@@ -814,4 +814,5 @@ function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + m
 // ============================================================
 console.log("🌍 Iniciando Secretário de Estado v4.0 (Groq)...");
 connectBot();
-
+                          r -= event.chance;
+  

@@ -815,17 +815,17 @@ function sendChat(message) {
 function runCommand(command) {
   if (!botClient) return;
   if (!command || typeof command !== "string") return;
+  // Usa /say para comandos que sao mensagens, caso contrario envia como chat com /
   try {
-    const cmd = command.startsWith("/") ? command : `/${command}`;
-    botClient.queue("command_request", {
-      command: cmd,
-      origin: {
-        type: 0,
-        uuid: "",
-        request_id: "",
-      },
-      internal: false,
-      version: 66,
+    const cmd = command.startsWith("/") ? command.slice(1) : command;
+    botClient.queue("text", {
+      type: "chat",
+      needs_translation: false,
+      source_name: "Secretario",
+      xuid: "",
+      platform_chat_id: "",
+      filtered_message: "",
+      message: `/${cmd}`,
     });
   } catch (e) {
     console.error("Erro runCommand:", e.message);

@@ -798,11 +798,14 @@ function sendChat(message) {
   if (!botClient) return;
   if (!message || typeof message !== "string") return;
   try {
-    botClient.queue("command_request", {
-      command: `/say ${message}`,
-      origin: { type: 0, uuid: "", request_id: "" },
-      internal: false,
-      version: "52",
+    botClient.queue("text", {
+      type: "chat",
+      needs_translation: false,
+      source_name: "Secretario",
+      xuid: "",
+      platform_chat_id: "",
+      filtered_message: "",
+      message: message,
     });
   } catch (e) {
     console.error("Erro sendChat:", e.message);
@@ -813,11 +816,16 @@ function runCommand(command) {
   if (!botClient) return;
   if (!command || typeof command !== "string") return;
   try {
+    const cmd = command.startsWith("/") ? command : `/${command}`;
     botClient.queue("command_request", {
-      command: `/${command}`,
-      origin: { type: 0, uuid: "", request_id: "" },
+      command: cmd,
+      origin: {
+        type: "player",
+        uuid: "",
+        request_id: "",
+      },
       internal: false,
-      version: "52",
+      version: 52,
     });
   } catch (e) {
     console.error("Erro runCommand:", e.message);

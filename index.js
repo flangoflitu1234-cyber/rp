@@ -135,17 +135,13 @@ function connectBot() {
   // ============================================================
   botClient.on("text", async (packet) => {
     try {
-      console.log("[DEBUG text]", JSON.stringify(packet));
-
-      let sender = "";
-      let msg = "";
-
       const type = packet.type;
 
-      // Extrair o sender
-      sender = packet.source_name || packet.xuid_str || "";
+      // Limpar sender — remove §r e outros códigos de cor do Bedrock
+      let sender = (packet.source_name || packet.xuid_str || "").replace(/§[0-9a-fk-or]/gi, "").trim();
 
       // Extrair a mensagem — vários formatos possíveis
+      let msg = "";
       if (packet.message) {
         msg = packet.message;
       } else if (packet.parameters && packet.parameters.length > 0) {
@@ -160,14 +156,14 @@ function connectBot() {
 
       console.log(`[MSG] tipo=${type} sender=${sender} msg=${msg}`);
 
-      // Mensagem privada /tell (tipo 7)
-      if (type === 7) {
+      // Mensagem privada /tell — tipo "whisper" ou 7
+      if (type === "whisper" || type === 7) {
         await handlePrivateMessage(sender, msg);
         return;
       }
 
-      // Chat normal — verificar prefixo "-"
-      if (type === 0 || type === undefined) {
+      // Chat normal — tipo "chat" ou 0 ou undefined
+      if (type === "chat" || type === 0 || type === undefined) {
         const clean = msg.trim();
         if (clean.startsWith("-")) {
           const action = clean.slice(1).trim();
@@ -806,7 +802,7 @@ function sendChat(message) {
       command: `/say ${message}`,
       origin: { type: 0, uuid: "", request_id: "" },
       internal: false,
-      version: 52,
+      version: "52",
     });
   } catch (e) {
     console.error("Erro sendChat:", e.message);
@@ -821,7 +817,7 @@ function runCommand(command) {
       command: `/${command}`,
       origin: { type: 0, uuid: "", request_id: "" },
       internal: false,
-      version: 52,
+      version: "52",
     });
   } catch (e) {
     console.error("Erro runCommand:", e.message);

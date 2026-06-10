@@ -820,12 +820,12 @@ function runCommand(command) {
     botClient.queue("command_request", {
       command: cmd,
       origin: {
-        type: "player",
+        type: 0,
         uuid: "",
         request_id: "",
       },
       internal: false,
-      version: 52,
+      version: 66,
     });
   } catch (e) {
     console.error("Erro runCommand:", e.message);

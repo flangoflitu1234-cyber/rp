@@ -158,7 +158,7 @@ function connectBot() {
 
       // Mensagem privada /tell — tipo "whisper" ou 7
       if (type === "whisper" || type === 7) {
-        await handlePrivateMessage(sender, msg);
+        setImmediate(() => handlePrivateMessage(sender, msg));
         return;
       }
 
@@ -168,7 +168,7 @@ function connectBot() {
         if (clean.startsWith("-")) {
           const action = clean.slice(1).trim();
           if (action.length > 0) {
-            await processPlayerAction(sender, action);
+            setImmediate(() => processPlayerAction(sender, action));
           }
         }
       }

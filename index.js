@@ -1,4 +1,4 @@
-const bedrock = require("bedrock-protocol");
+                    const bedrock = require("bedrock-protocol");
 const Groq = require("groq-sdk");
 const fs = require("fs");
 const path = require("path");
@@ -590,7 +590,7 @@ Responde APENAS com JSON válido:
   "diplomacia": número,
   "recursos": número,
   "divida": número,
-  "infraestruturas": {"antiAereos": bool, "muralhas": bool, "marinha": bool, "hospital": bool, "policia": bool, "habitacao": bool, "fabrica": bool, "escola": bool, "aeroporto": bool},
+  "infraestruturas": {"antiAereos": bool, "muralhas": bool, "marinha": bool, "escudoNuclear": bool, "hospital": bool, "policia": bool, "habitacao": bool, "fabrica": bool, "escola": bool, "aeroporto": bool},
   "titulo": "título opcional ou null",
   "subtitulo": "subtítulo opcional ou null",
   "alerta_global": "mensagem global opcional ou null",
@@ -792,20 +792,22 @@ async function triggerRandomEvent() {
 }
 
 // ============================================================
-// UTILITÁRIOS
+// UTILITÁRIOS — CORRIGIDOS
 // ============================================================
 function sendChat(message) {
   if (!botClient) return;
   if (!message || typeof message !== "string") return;
   try {
-    botClient.queue("text", {
+    botClient.write("text", {
       type: "chat",
       needs_translation: false,
-      source_name: "Secretario",
+      source_name: botClient.username || "Secretario",
       xuid: "",
       platform_chat_id: "",
-      filtered_message: "",
+      filtered_message: message,
       message: message,
+      parameters: [],
+      sender_uuid: "",
     });
   } catch (e) {
     console.error("Erro sendChat:", e.message);
@@ -815,17 +817,17 @@ function sendChat(message) {
 function runCommand(command) {
   if (!botClient) return;
   if (!command || typeof command !== "string") return;
-  // Usa /say para comandos que sao mensagens, caso contrario envia como chat com /
   try {
     const cmd = command.startsWith("/") ? command.slice(1) : command;
-    botClient.queue("text", {
-      type: "chat",
-      needs_translation: false,
-      source_name: "Secretario",
-      xuid: "",
-      platform_chat_id: "",
-      filtered_message: "",
-      message: `/${cmd}`,
+    botClient.write("command_request", {
+      command: cmd,
+      origin: {
+        type: 0,
+        uuid: "",
+        request_id: "",
+      },
+      internal: false,
+      version: 52,
     });
   } catch (e) {
     console.error("Erro runCommand:", e.message);

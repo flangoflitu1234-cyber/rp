@@ -835,7 +835,6 @@ function runCommand(command) {
         request_id: "",
       },
       internal: false,
-      version: 52,
     });
   } catch (e) {
     console.error("Erro runCommand:", e.message);

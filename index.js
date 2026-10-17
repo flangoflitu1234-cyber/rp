@@ -830,7 +830,7 @@ function runCommand(command) {
     botClient.write("command_request", {
       command: cmd,
       origin: {
-        type: 0,
+        type: "player",
         uuid: "",
         request_id: "",
       },

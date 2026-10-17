@@ -826,15 +826,17 @@ function runCommand(command) {
   if (!botClient) return;
   if (!command || typeof command !== "string") return;
   try {
-    const cmd = command.startsWith("/") ? command.slice(1) : command;
-    botClient.write("command_request", {
-      command: cmd,
-      origin: {
-        type: "player",
-        uuid: "",
-        request_id: "",
-      },
-      internal: false,
+    const cmd = command.startsWith("/") ? command : `/${command}`;
+    botClient.write("text", {
+      type: "chat",
+      needs_translation: false,
+      source_name: botClient.username || "Secretario",
+      xuid: "",
+      platform_chat_id: "",
+      filtered_message: cmd,
+      message: cmd,
+      parameters: [],
+      sender_uuid: "",
     });
   } catch (e) {
     console.error("Erro runCommand:", e.message);

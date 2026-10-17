@@ -3,15 +3,7 @@ const Groq = require("groq-sdk");
 const fs = require("fs");
 const path = require("path");
 
-let client = null;
-function getGroqClient() {
-  if (!client) {
-    const key = process.env.GROQ_API_KEY;
-    if (!key) throw new Error("GROQ_API_KEY não definida nas variáveis de ambiente!");
-    client = new Groq({ apiKey: key });
-  }
-  return client;
-}
+const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 // ============================================================
@@ -204,7 +196,7 @@ function connectBot() {
 // CHAMADA À IA (GROQ)
 // ============================================================
 async function askAI(systemPrompt, userMessage, maxTokens = 1000) {
-  const response = await getGroqClient().chat.completions.create({
+  const response = await client.chat.completions.create({
     model: GROQ_MODEL,
     max_tokens: maxTokens,
     messages: [

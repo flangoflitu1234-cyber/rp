@@ -806,10 +806,10 @@ function sendChat(message) {
       source_name: botClient.username || "Secretario",
       xuid: "",
       platform_chat_id: "",
-      filtered_message: message,
+      filtered_message: "",
       message: message,
       parameters: [],
-      sender_uuid: "",
+      sender_uuid: "00000000-0000-0000-0000-000000000000",
     });
   } catch (e) {
     console.error("Erro sendChat:", e.message);

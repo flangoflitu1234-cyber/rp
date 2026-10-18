@@ -115,15 +115,7 @@ function connectBot() {
 
   botClient.on("spawn", () => {
     console.log("✅ Secretário conectado ao servidor!");
-    sleep(3000).then(async () => {
-      try {
-        sendChat("§6§l[SECRETÁRIO DE ESTADO]§r§f O Secretário está online!");
-        await sleep(1000);
-        sendChat("§7Use §e-ação§7 para agir | §e/tell Secretario mensagem§7 para falar em privado");
-      } catch (e) {
-        console.error("Erro no spawn:", e.message);
-      }
-    });
+    console.log("🔇 Modo silencioso no spawn — sem mensagens para testar estabilidade.");
     startRandomEvents();
   });
 
@@ -799,6 +791,8 @@ async function triggerRandomEvent() {
 function sendChat(message) {
   if (!botClient) return;
   if (!message || typeof message !== "string") return;
+  // Remove § color codes before sending (server may reject formatted messages)
+  const clean = message.replace(/§[0-9a-fk-or]/gi, "");
   try {
     botClient.write("text", {
       type: "chat",
@@ -806,8 +800,8 @@ function sendChat(message) {
       source_name: botClient.username || "Secretario",
       xuid: "",
       platform_chat_id: "",
-      filtered_message: "",
-      message: message,
+      filtered_message: clean,
+      message: clean,
       parameters: [],
       sender_uuid: "00000000-0000-0000-0000-000000000000",
     });
@@ -832,6 +826,7 @@ function runCommand(command) {
       parameters: [],
       sender_uuid: "00000000-0000-0000-0000-000000000000",
     });
+    console.log(`[CMD] ${cmd}`);
   } catch (e) {
     console.error("Erro runCommand:", e.message);
   }

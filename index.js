@@ -115,22 +115,11 @@ function connectBot() {
 
   botClient.on("spawn", () => {
     console.log("✅ Secretário conectado ao servidor!");
-    sleep(8000).then(async () => {
+    sleep(3000).then(async () => {
       try {
-        runCommand("scoreboard objectives add inflacao dummy §6Inflação (%)");
-        await sleep(500);
-        runCommand("scoreboard objectives setdisplay sidebar inflacao");
-        await sleep(500);
         sendChat("§6§l[SECRETÁRIO DE ESTADO]§r§f O Secretário está online!");
-        await sleep(500);
-        sendChat("§7Use §e-ação§7 para agir | §e/tell Secretario mensagem§7 para falar em privado");
         await sleep(1000);
-        for (const [player, country] of Object.entries(db.countries)) {
-          await sleep(200);
-          runCommand(`scoreboard players set ${player} inflacao ${Math.round(country.inflacao)}`);
-        }
-        await sleep(500);
-        sendChat(`§7[Sistema] ${Object.keys(db.countries).length} países carregados da base de dados.`);
+        sendChat("§7Use §e-ação§7 para agir | §e/tell Secretario mensagem§7 para falar em privado");
       } catch (e) {
         console.error("Erro no spawn:", e.message);
       }
@@ -195,8 +184,13 @@ function connectBot() {
 
   botClient.on("error", (err) => {
     console.error("❌ Erro:", err.message);
-    botClient = null;
-    setTimeout(connectBot, 30000);
+    if (botClient) { botClient = null; setTimeout(connectBot, 30000); }
+  });
+
+  botClient.on("end", (reason) => {
+    console.log("🔌 Conexão encerrada:", reason || "sem motivo");
+    saveDB();
+    if (botClient) { botClient = null; setTimeout(connectBot, 30000); }
   });
 }
 

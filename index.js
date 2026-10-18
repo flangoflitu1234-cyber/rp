@@ -12,7 +12,7 @@ function getGroqClient() {
   }
   return client;
 }
-const GROQ_MODEL = "llama3-70b-8192";
+const GROQ_MODEL = "llama-3.1-8b-instant";
 
 // ============================================================
 // BASE DE DADOS PERSISTENTE

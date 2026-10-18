@@ -12,7 +12,7 @@ function getGroqClient() {
   }
   return client;
 }
-const GROQ_MODEL = "llama-3.1-8b-instant";
+const GROQ_MODEL = "openai/gpt-oss-20b";
 
 // ============================================================
 // BASE DE DADOS PERSISTENTE

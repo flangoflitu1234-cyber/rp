@@ -114,8 +114,8 @@ function connectBot() {
   });
 
   botClient.on("spawn", () => {
-    console.log("✅ Secretário conectado ao servidor!");
-    console.log("🔇 Modo silencioso no spawn — sem mensagens para testar estabilidade.");
+    const uuid = botClient.profile?.uuid || botClient.session?.uuid || "none";
+    console.log("✅ Secretário conectado ao servidor! UUID:", uuid);
     startRandomEvents();
   });
 
@@ -791,8 +791,10 @@ async function triggerRandomEvent() {
 function sendChat(message) {
   if (!botClient) return;
   if (!message || typeof message !== "string") return;
-  // Remove § color codes before sending (server may reject formatted messages)
+  // Remove § color codes — server rejects formatted messages from clients
   const clean = message.replace(/§[0-9a-fk-or]/gi, "");
+  // Use the UUID assigned during login handshake — must match what server recorded
+  const uuid = botClient.profile?.uuid || botClient.session?.uuid || "00000000-0000-0000-0000-000000000000";
   try {
     botClient.write("text", {
       type: "chat",
@@ -803,8 +805,9 @@ function sendChat(message) {
       filtered_message: clean,
       message: clean,
       parameters: [],
-      sender_uuid: "00000000-0000-0000-0000-000000000000",
+      sender_uuid: uuid,
     });
+    console.log(`[CHAT] ${clean}`);
   } catch (e) {
     console.error("Erro sendChat:", e.message);
   }
@@ -824,7 +827,7 @@ function runCommand(command) {
       filtered_message: cmd,
       message: cmd,
       parameters: [],
-      sender_uuid: "00000000-0000-0000-0000-000000000000",
+      sender_uuid: botClient.profile?.uuid || botClient.session?.uuid || "00000000-0000-0000-0000-000000000000",
     });
     console.log(`[CMD] ${cmd}`);
   } catch (e) {

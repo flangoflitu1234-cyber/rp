@@ -818,7 +818,8 @@ function runCommand(command) {
   if (!botClient) return;
   if (!command || typeof command !== "string") return;
   try {
-    const cmd = command.startsWith("/") ? command : `/${command}`;
+    const clean = command.replace(/§[0-9a-fk-or]/gi, "");
+    const cmd = clean.startsWith("/") ? clean : `/${clean}`;
     botClient.write("text", {
       type: "chat",
       needs_translation: false,

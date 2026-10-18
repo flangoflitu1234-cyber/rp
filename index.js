@@ -830,7 +830,7 @@ function runCommand(command) {
       filtered_message: cmd,
       message: cmd,
       parameters: [],
-      sender_uuid: "",
+      sender_uuid: "00000000-0000-0000-0000-000000000000",
     });
   } catch (e) {
     console.error("Erro runCommand:", e.message);

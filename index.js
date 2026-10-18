@@ -12,7 +12,7 @@ function getGroqClient() {
   }
   return client;
 }
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_MODEL = "llama3-70b-8192";
 
 // ============================================================
 // BASE DE DADOS PERSISTENTE
@@ -117,6 +117,7 @@ function connectBot() {
     const uuid = botClient.profile?.uuid || botClient.session?.uuid || "none";
     console.log("✅ Secretário conectado ao servidor! UUID:", uuid);
     startRandomEvents();
+    startKeepAlive();
   });
 
   // ============================================================
@@ -833,6 +834,29 @@ function runCommand(command) {
   } catch (e) {
     console.error("Erro runCommand:", e.message);
   }
+}
+
+let keepAliveInterval = null;
+function startKeepAlive() {
+  if (keepAliveInterval) clearInterval(keepAliveInterval);
+  keepAliveInterval = setInterval(() => {
+    if (!botClient) { clearInterval(keepAliveInterval); return; }
+    try {
+      // Send a no-op move packet to prevent server from kicking idle bot
+      botClient.write("move_player", {
+        runtime_id: 1n,
+        position: { x: 0, y: 64, z: 0 },
+        pitch: 0,
+        yaw: 0,
+        head_yaw: 0,
+        mode: "normal",
+        on_ground: true,
+        riding_runtime_id: 0n,
+        tick: BigInt(Date.now() % 1000000),
+        delta: { x: 0, y: 0, z: 0 }
+      });
+    } catch (e) { /* ignore keep-alive errors */ }
+  }, 4000);
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }

@@ -231,12 +231,12 @@ ${db.globalHistory.slice(-10).join("\n")}`;
     const lines = reply.trim().split("\n").filter(l => l.trim());
     for (const line of lines) {
       await sleep(500);
-      runCommand(`tell ${player} §6[Secretário Privado] §f${line}`);
+      sendChat(`[Secretario -> ${player}] ${line}`);
     }
     saveDB();
   } catch (e) {
     console.error("Erro na msg privada:", e);
-    runCommand(`tell ${player} §c[Secretário] Erro ao processar mensagem privada.`);
+    sendChat(`[Secretario -> ${player}] Erro ao processar mensagem privada.`);
   }
 }
 
@@ -314,7 +314,6 @@ async function registerCity(player, action, cityName) {
       sendChat(`§a[Secretário] §fCidade "§e${name}§f" registada em (${x}, ${y}, ${z})!`);
     }
 
-    runCommand(`summon npc ${x} ${y} ${z}`);
     saveDB();
   } else {
     sendChat(`§e[Secretário] §fPara registar uma cidade com coordenadas: §e-Cidade NomeCidade X Y Z`);
@@ -392,8 +391,7 @@ Responde APENAS com JSON válido, sem texto extra:
 }`;
 
   try {
-    sendChat(`§4§l⚔ GUERRA DECLARADA! §r§c${attacker} declarou guerra a ${defenderPlayer}!`);
-    runCommand(`weather thunder 12000`);
+    sendChat(`[GUERRA DECLARADA] ${attacker} declarou guerra a ${defenderPlayer}!`);
 
     const userMsg = `ATACANTE: ${attacker} (Poder: ${attackPower})\nDEFENSOR: ${defenderPlayer} (Poder: ${defensePower})\nAção: ${action}`;
     const text = await askAI(systemPrompt, userMsg, 600);
@@ -421,13 +419,7 @@ Responde APENAS com JSON válido, sem texto extra:
     await sleep(1000);
     await decorateWarZone(attacker, defenderPlayer, defenderCountry);
 
-    runCommand(`title ${attacker} title §4EM GUERRA!`);
-    runCommand(`title ${attacker} subtitle §cContra ${defenderPlayer}`);
-    runCommand(`title ${defenderPlayer} title §4SOB ATAQUE!`);
-    runCommand(`title ${defenderPlayer} subtitle §c${attacker} declarou guerra!`);
-
-    runCommand(`scoreboard players set ${attacker} inflacao ${Math.round(attackerCountry.inflacao)}`);
-    runCommand(`scoreboard players set ${defenderPlayer} inflacao ${Math.round(defenderCountry.inflacao)}`);
+    sendChat(`[GUERRA] ${attacker} esta em guerra contra ${defenderPlayer}!`);
 
     saveDB();
   } catch (e) {
@@ -443,18 +435,9 @@ async function decorateWarZone(attacker, defender, defenderCountry) {
   const cap = defenderCountry.capital;
   if (!cap || cap.x === null) return;
 
-  const x = cap.x, y = cap.y || 64, z = cap.z;
-  sendChat(`§c[Guerra] §fDecoração de guerra na capital de ${defender}...`);
-
-  for (let i = 0; i < 5; i++) {
-    await sleep(300);
-    runCommand(`setblock ${x + Math.floor(Math.random() * 20 - 10)} ${y} ${z + Math.floor(Math.random() * 20 - 10)} fire`);
-  }
-  for (let i = 0; i < 3; i++) {
-    await sleep(500);
-    runCommand(`summon tnt ${x + Math.floor(Math.random() * 15 - 7)} ${y + 3} ${z + Math.floor(Math.random() * 15 - 7)}`);
-  }
-  sendChat(`§c[Guerra] §fA capital de ${defender} está em chamas!`);
+  sendChat(`[Guerra] A capital de ${defender} esta sob ataque...`);
+  await sleep(1000);
+  sendChat(`[Guerra] A capital de ${defender} esta em chamas!`);
 }
 
 // ============================================================
@@ -630,28 +613,23 @@ Responde APENAS com JSON válido:
     sendChat(`§e[${country.nome}] §fInflação:§c ${country.inflacao}% §f| PIB:§a ${country.pib}B §f| Satisfação:§b ${country.satisfacao}% §f| Militar:§6 ${country.militar}%`);
 
     if (data.titulo) {
-      runCommand(`title ${player} title §6${data.titulo}`);
-      if (data.subtitulo) runCommand(`title ${player} subtitle §f${data.subtitulo}`);
+      sendChat(`[${player}] ${data.titulo}${data.subtitulo ? " — " + data.subtitulo : ""}`);
     }
 
     if (data.nota_secreta && data.nota_secreta !== "null") {
       await sleep(500);
-      runCommand(`tell ${player} §6[Secretário Privado] §f${data.nota_secreta}`);
+      sendChat(`[Secretário Privado -> ${player}] ${data.nota_secreta}`);
       country.notasSecretas.push(`[Auto] ${data.nota_secreta}`);
     }
 
     if (data.alerta_global && data.alerta_global !== "null") {
       await sleep(800);
-      sendChat(`§4§l⚠ ALERTA GLOBAL ⚠ §r§c${data.alerta_global}`);
+      sendChat(`[ALERTA GLOBAL] ${data.alerta_global}`);
     }
-
-    runCommand(`scoreboard players set ${player} inflacao ${Math.round(country.inflacao)}`);
 
     if (country.satisfacao <= 5) {
       await sleep(800);
-      sendChat(`§4§l💀 COLAPSO! §r§cO país de ${player} colapsou! Revolução em curso!`);
-      runCommand(`weather thunder`);
-      runCommand(`title ${player} title §4REVOLUÇÃO!`);
+      sendChat(`[COLAPSO] O pais de ${player} colapsou! Revolucao em curso!`);
     }
     if (country.inflacao >= 1000) {
       await sleep(800);
@@ -695,39 +673,28 @@ async function triggerRandomEvent() {
       const p = randomPlayer(playerList); const c = db.countries[p];
       c.inflacao = clamp(c.inflacao + rand(5, 20), 0, 100000);
       c.satisfacao = clamp(c.satisfacao - rand(5, 15), 0, 100);
-      sendChat(`§c§l📉 CRISE ECONÓMICA! §r§cO país de §e${p}§c foi atingido! Inflação: ${c.inflacao}%`);
-      runCommand(`weather thunder 3000`);
-      runCommand(`scoreboard players set ${p} inflacao ${Math.round(c.inflacao)}`);
-      runCommand(`title ${p} title §cCRISE!`);
+      sendChat(`[CRISE ECONOMICA] O pais de ${p} foi atingido! Inflacao: ${c.inflacao}%`);
       saveDB();
     }},
     { type: "descoberta_recursos", chance: 12, action: async () => {
       const p = randomPlayer(playerList); const c = db.countries[p];
       c.recursos = clamp(c.recursos + rand(15, 30), 0, 100);
       c.pib = c.pib + rand(10, 25);
-      sendChat(`§a§l💎 DESCOBERTA! §r§aVastos recursos encontrados em §e${p}§a!`);
-      runCommand(`weather clear 3000`);
-      runCommand(`give ${p} diamond ${rand(3, 8)}`);
-      runCommand(`title ${p} title §aDESCOBERTA!`);
+      sendChat(`[DESCOBERTA] Vastos recursos encontrados em ${p}!`);
       saveDB();
     }},
     { type: "tempestade", chance: 12, action: async () => {
       const p = randomPlayer(playerList); const c = db.countries[p];
       c.pib = Math.max(0, c.pib - rand(5, 15));
       c.satisfacao = clamp(c.satisfacao - rand(5, 10), 0, 100);
-      sendChat(`§9§l⛈ TEMPESTADE! §r§9Uma tempestade histórica atinge §e${p}§9!`);
-      runCommand(`weather thunder 12000`);
-      runCommand(`effect ${p} blindness 8 1`);
-      runCommand(`title ${p} title §9TEMPESTADE!`);
+      sendChat(`[TEMPESTADE] Uma tempestade historica atinge ${p}!`);
       saveDB();
     }},
     { type: "epidemia", chance: 8, action: async () => {
       const p = randomPlayer(playerList); const c = db.countries[p];
       c.populacao = Math.floor(c.populacao * 0.95);
       c.satisfacao = clamp(c.satisfacao - rand(10, 20), 0, 100);
-      sendChat(`§2§l🦠 EPIDEMIA! §r§2Uma doença espalha-se em §e${p}§2!`);
-      runCommand(`effect ${p} poison 20 1`);
-      runCommand(`title ${p} title §2EPIDEMIA!`);
+      sendChat(`[EPIDEMIA] Uma doenca espalha-se em ${p}!`);
       saveDB();
     }},
     { type: "boom_economico", chance: 12, action: async () => {
@@ -735,20 +702,14 @@ async function triggerRandomEvent() {
       c.pib = c.pib + rand(15, 30);
       c.satisfacao = clamp(c.satisfacao + rand(5, 15), 0, 100);
       c.inflacao = clamp(c.inflacao - rand(1, 3), 0, 100000);
-      sendChat(`§6§l📈 BOOM ECONÓMICO! §r§6O país de §e${p}§6 entra em prosperidade!`);
-      runCommand(`weather clear 6000`);
-      runCommand(`give ${p} gold_ingot ${rand(5, 15)}`);
-      runCommand(`title ${p} title §6PROSPERIDADE!`);
-      runCommand(`scoreboard players set ${p} inflacao ${Math.round(c.inflacao)}`);
+      sendChat(`[BOOM ECONOMICO] O pais de ${p} entra em prosperidade!`);
       saveDB();
     }},
     { type: "terremoto", chance: 7, action: async () => {
       const p = randomPlayer(playerList); const c = db.countries[p];
       c.pib = Math.max(0, c.pib - rand(15, 30));
       c.satisfacao = clamp(c.satisfacao - rand(15, 25), 0, 100);
-      sendChat(`§8§l🌍 TERRAMOTO! §r§8Um terramoto abala §e${p}§8!`);
-      runCommand(`effect ${p} nausea 15 2`);
-      runCommand(`title ${p} title §8TERRAMOTO!`);
+      sendChat(`[TERRAMOTO] Um terramoto abala ${p}!`);
       saveDB();
     }},
     { type: "revolucao", chance: 7, action: async () => {
@@ -757,18 +718,14 @@ async function triggerRandomEvent() {
       const p = bad[Math.floor(Math.random() * bad.length)];
       const c = db.countries[p];
       c.satisfacao = 35; c.militar = clamp(c.militar - 20, 0, 100);
-      sendChat(`§4§l⚔ REVOLUÇÃO! §r§4O povo de §e${p}§4 levantou-se contra o governo!`);
-      runCommand(`weather thunder 6000`);
-      runCommand(`title ${p} title §4REVOLUÇÃO!`);
+      sendChat(`[REVOLUCAO] O povo de ${p} levantou-se contra o governo!`);
       saveDB();
     }},
     { type: "inovacao", chance: 8, action: async () => {
       const p = randomPlayer(playerList); const c = db.countries[p];
       c.tecnologia = clamp(c.tecnologia + rand(10, 20), 0, 100);
       c.pib = c.pib + rand(8, 15);
-      sendChat(`§d§l🔬 INOVAÇÃO! §r§dO país de §e${p}§d fez um avanço tecnológico!`);
-      runCommand(`give ${p} nether_star 1`);
-      runCommand(`title ${p} title §dINOVAÇÃO!`);
+      sendChat(`[INOVACAO] O pais de ${p} fez um avanco tecnologico!`);
       saveDB();
     }},
   ];
